@@ -132,3 +132,7 @@ $RECYCLE.BIN/
 
 # Temporary npm script file for prettier:watch:*
 tmp/._*
+
+# googleapi secret
+dist/client_secret.json
+dist/token.json

@@ -23,7 +23,7 @@ module.exports = {
   module: {
     rules: [
       {
-        test: /\.js$/,
+        test: /\.(js|ts)$/,
         exclude: path.resolve(__dirname, 'node_modules'),
         use: [
           {
@@ -32,6 +32,10 @@ module.exports = {
         ]
       }
     ]
+  },
+
+  externals: {
+    googleapis: 'commonjs googleapis'
   },
 
   target: 'node'

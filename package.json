@@ -84,7 +84,9 @@
     "webpack-cli": "^3.1.0"
   },
   "dependencies": {
-    "@babel/polyfill": "^7.0.0"
+    "@babel/polyfill": "^7.0.0",
+    "@types/gapi": "^0.0.36",
+    "googleapis": "^34.0.0"
   },
   "license": "MIT"
 }
