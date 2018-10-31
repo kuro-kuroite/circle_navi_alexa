@@ -3,7 +3,8 @@ require('webpack');
 
 module.exports = {
   entry: {
-    index: path.resolve(__dirname, 'src/js/index.js')
+    index: path.resolve(__dirname, 'src/js/index.js'),
+    sandbox: path.resolve(__dirname, 'src/js/sandbox.js')
   },
 
   output: {
@@ -29,7 +30,8 @@ module.exports = {
           {
             loader: 'babel-loader'
           }
-        ]
+        ],
+        include: path.resolve(__dirname, 'node_modules/googleapis')
       }
     ]
   },

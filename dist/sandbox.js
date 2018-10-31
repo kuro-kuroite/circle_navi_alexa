@@ -81,7 +81,7 @@
 /******/
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = "./src/js/index.js");
+/******/ 	return __webpack_require__(__webpack_require__.s = "./src/js/sandbox.js");
 /******/ })
 /************************************************************************/
 /******/ ({
@@ -3199,15 +3199,27 @@ eval("/**\n * Copyright (c) 2014-present, Facebook, Inc.\n *\n * This source cod
 
 /***/ }),
 
-/***/ "./src/js/atoms/components/googlecalendar/fetch_events.js":
-/*!****************************************************************!*\
-  !*** ./src/js/atoms/components/googlecalendar/fetch_events.js ***!
-  \****************************************************************/
-/*! exports provided: default */
+/***/ "./src/js/atoms/components/googlecalendar/authorize.js":
+/*!*************************************************************!*\
+  !*** ./src/js/atoms/components/googlecalendar/authorize.js ***!
+  \*************************************************************/
+/*! exports provided: default, getAccessToken */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"default\", function() { return main; });\n/* harmony import */ var _oauth_GoogleOAuth2AbstractOAuth2Adapter__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../oauth/GoogleOAuth2AbstractOAuth2Adapter */ \"./src/js/atoms/components/oauth/GoogleOAuth2AbstractOAuth2Adapter.js\");\n/* harmony import */ var _strategy_JSONFileStrategy__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../strategy/JSONFileStrategy */ \"./src/js/atoms/components/strategy/JSONFileStrategy.js\");\n/* harmony import */ var _strategy_ReadlineStrategy__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../strategy/ReadlineStrategy */ \"./src/js/atoms/components/strategy/ReadlineStrategy.js\");\n/* harmony import */ var _strategy_StdinStrategy__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../strategy/StdinStrategy */ \"./src/js/atoms/components/strategy/StdinStrategy.js\");\n/* harmony import */ var _strategy_StdoutStrategy__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../strategy/StdoutStrategy */ \"./src/js/atoms/components/strategy/StdoutStrategy.js\");\n/* harmony import */ var _list_events__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./list_events */ \"./src/js/atoms/components/googlecalendar/list_events.js\");\n\n\n\n\n\n\n\nasync function main() {\n  const oauth = new _oauth_GoogleOAuth2AbstractOAuth2Adapter__WEBPACK_IMPORTED_MODULE_0__[\"default\"](\n    new _strategy_JSONFileStrategy__WEBPACK_IMPORTED_MODULE_1__[\"default\"]('client_secret.json'),\n    new _strategy_ReadlineStrategy__WEBPACK_IMPORTED_MODULE_2__[\"default\"](new _strategy_StdinStrategy__WEBPACK_IMPORTED_MODULE_3__[\"default\"](), new _strategy_StdoutStrategy__WEBPACK_IMPORTED_MODULE_4__[\"default\"]()),\n    new _strategy_JSONFileStrategy__WEBPACK_IMPORTED_MODULE_1__[\"default\"]('token.json'),\n    ['calendar']\n  );\n  console.log(await oauth.authorize(_list_events__WEBPACK_IMPORTED_MODULE_5__[\"default\"]));\n}\n\n\n//# sourceURL=webpack:///./src/js/atoms/components/googlecalendar/fetch_events.js?");
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"getAccessToken\", function() { return getAccessToken; });\n/* harmony import */ var fs__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! fs */ \"fs\");\n/* harmony import */ var fs__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(fs__WEBPACK_IMPORTED_MODULE_0__);\n/* harmony import */ var readline__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! readline */ \"readline\");\n/* harmony import */ var readline__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(readline__WEBPACK_IMPORTED_MODULE_1__);\n/* harmony import */ var googleapis__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! googleapis */ \"googleapis\");\n/* harmony import */ var googleapis__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(googleapis__WEBPACK_IMPORTED_MODULE_2__);\n\n\n\n\n// If modifying these scopes, delete token.json.\nconst SCOPES = ['https://www.googleapis.com/auth/calendar.readonly'];\nconst TOKEN_PATH = 'token.json';\n\n/**\n * Get and store new token after prompting for user authorization, and then\n * execute the given callback with the authorized OAuth2 client.\n * @param {google.auth.OAuth2} oAuth2Client The OAuth2 client to get token for.\n * @param {getEventsCallback} callback The callback for the authorized client.\n */\nconst getAccessToken = (oAuth2Client, callback) => {\n  const authUrl = oAuth2Client.generateAuthUrl({\n    access_type: 'offline',\n    scope: SCOPES\n  });\n  console.log('Authorize this app by visiting this url:', authUrl);\n  const rl = readline__WEBPACK_IMPORTED_MODULE_1___default.a.createInterface({\n    input: process.stdin,\n    output: process.stdout\n  });\n  rl.question('Enter the code from that page here: ', code => {\n    rl.close();\n    oAuth2Client.getToken(code, (err, token) => {\n      if (err) return console.error('Error retrieving access token', err);\n      oAuth2Client.setCredentials(token);\n      // Store the token to disk for later program executions\n      fs__WEBPACK_IMPORTED_MODULE_0___default.a.writeFile(TOKEN_PATH, JSON.stringify(token), err => {\n        if (err) console.error(err);\n        console.log('Token stored to', TOKEN_PATH);\n      });\n      callback(oAuth2Client);\n    });\n  });\n};\n\n/**\n * Create an OAuth2 client with the given credentials, and then execute the\n * given callback function.\n * @param {Object} credentials The authorization client credentials.\n * @param {function} callback The callback to call with the authorized client.\n */\nconst authorize = (credentials, callback) => {\n  // HACK: 以下のサンプルでは動作しないため，コメント\n  // const { client_secret, client_id, redirect_uris } = credentials.installed;\n  // const oAuth2Client = new google.auth.OAuth2(\n  //   client_id,\n  //   client_secret,\n  //   redirect_uris[0]\n  // );\n\n  // HACK: credentials.json の仕様変更に追従\n  const { client_secret, client_id, redirect_uris } = credentials;\n  // HACK: credentials.json の仕様変更に追従\n  const redirect_uri = 'urn:ietf:wg:oauth:2.0:oob';\n  const oAuth2Client = new googleapis__WEBPACK_IMPORTED_MODULE_2__[\"google\"].auth.OAuth2(\n    client_id,\n    client_secret,\n    redirect_uri\n  );\n\n  // Check if we have previously stored a token.\n  fs__WEBPACK_IMPORTED_MODULE_0___default.a.readFile(TOKEN_PATH, (err, token) => {\n    if (err) {\n      return getAccessToken(oAuth2Client, callback);\n    }\n    oAuth2Client.setCredentials(JSON.parse(token));\n    return callback(oAuth2Client);\n  });\n};\n\n/* harmony default export */ __webpack_exports__[\"default\"] = (authorize);\n\n\n\n//# sourceURL=webpack:///./src/js/atoms/components/googlecalendar/authorize.js?");
+
+/***/ }),
+
+/***/ "./src/js/atoms/components/googlecalendar/googlecalendar.js":
+/*!******************************************************************!*\
+  !*** ./src/js/atoms/components/googlecalendar/googlecalendar.js ***!
+  \******************************************************************/
+/*! exports provided: default, listEvents */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"listEvents\", function() { return listEvents; });\n// import { google } from 'googleapis';\n\n// const calendar = google.calendar_v3({\n//   auth: 'xxxxxxx'\n// });\n\n// export default calendar;\n\nconst fs = __webpack_require__(/*! fs */ \"fs\");\nconst readline = __webpack_require__(/*! readline */ \"readline\");\nconst { google } = __webpack_require__(/*! googleapis */ \"googleapis\");\n\n// If modifying these scopes, delete token.json.\nconst SCOPES = ['https://www.googleapis.com/auth/calendar.readonly'];\nconst TOKEN_PATH = 'token.json';\n\n/**\n * Create an OAuth2 client with the given credentials, and then execute the\n * given callback function.\n * @param {Object} credentials The authorization client credentials.\n * @param {function} callback The callback to call with the authorized client.\n */\nfunction authorize(credentials, callback) {\n  const { client_secret, client_id, redirect_uris } = credentials.installed;\n  const oAuth2Client = new google.auth.OAuth2(\n    client_id,\n    client_secret,\n    redirect_uris[0]\n  );\n\n  // Check if we have previously stored a token.\n  fs.readFile(TOKEN_PATH, (err, token) => {\n    if (err) return getAccessToken(oAuth2Client, callback);\n    oAuth2Client.setCredentials(JSON.parse(token));\n    callback(oAuth2Client);\n  });\n}\n\n/**\n * Get and store new token after prompting for user authorization, and then\n * execute the given callback with the authorized OAuth2 client.\n * @param {google.auth.OAuth2} oAuth2Client The OAuth2 client to get token for.\n * @param {getEventsCallback} callback The callback for the authorized client.\n */\nfunction getAccessToken(oAuth2Client, callback) {\n  const authUrl = oAuth2Client.generateAuthUrl({\n    access_type: 'offline',\n    scope: SCOPES\n  });\n  console.log('Authorize this app by visiting this url:', authUrl);\n  const rl = readline.createInterface({\n    input: process.stdin,\n    output: process.stdout\n  });\n  rl.question('Enter the code from that page here: ', code => {\n    rl.close();\n    oAuth2Client.getToken(code, (err, token) => {\n      if (err) return console.error('Error retrieving access token', err);\n      oAuth2Client.setCredentials(token);\n      // Store the token to disk for later program executions\n      fs.writeFile(TOKEN_PATH, JSON.stringify(token), err => {\n        if (err) console.error(err);\n        console.log('Token stored to', TOKEN_PATH);\n      });\n      callback(oAuth2Client);\n    });\n  });\n}\n\n/**\n * Lists the next 10 events on the user's primary calendar.\n * @param {google.auth.OAuth2} auth An authorized OAuth2 client.\n */\nfunction listEvents(auth) {\n  const calendar = google.calendar({ version: 'v3', auth });\n  calendar.events.list(\n    {\n      calendarId: 'primary',\n      timeMin: new Date().toISOString(),\n      maxResults: 10,\n      singleEvents: true,\n      orderBy: 'startTime'\n    },\n    (err, res) => {\n      if (err) return console.log(`The API returned an error: ${err}`);\n      const events = res.data.items;\n      if (events.length) {\n        console.log('Upcoming 10 events:');\n        events.map((event, i) => {\n          const start = event.start.dateTime || event.start.date;\n          console.log(`${start} - ${event.summary}`);\n        });\n      } else {\n        console.log('No upcoming events found.');\n      }\n    }\n  );\n}\n\n/* harmony default export */ __webpack_exports__[\"default\"] = (authorize);\n\n\n\n//# sourceURL=webpack:///./src/js/atoms/components/googlecalendar/googlecalendar.js?");
 
 /***/ }),
 
@@ -3223,87 +3235,27 @@ eval("__webpack_require__.r(__webpack_exports__);\n/* harmony import */ var goog
 
 /***/ }),
 
-/***/ "./src/js/atoms/components/oauth/GoogleOAuth2.js":
-/*!*******************************************************!*\
-  !*** ./src/js/atoms/components/oauth/GoogleOAuth2.js ***!
-  \*******************************************************/
+/***/ "./src/js/atoms/components/googlecalendar/oauth_client.js":
+/*!****************************************************************!*\
+  !*** ./src/js/atoms/components/googlecalendar/oauth_client.js ***!
+  \****************************************************************/
 /*! exports provided: default */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"default\", function() { return GoogleOAuth2; });\n/* harmony import */ var googleapis__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! googleapis */ \"googleapis\");\n/* harmony import */ var googleapis__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(googleapis__WEBPACK_IMPORTED_MODULE_0__);\n\n\n// NOTE: client secret の情報取得に「strategy method」を採用し,\n//       取得方法(interface)を統一する\nclass GoogleOAuth2 extends googleapis__WEBPACK_IMPORTED_MODULE_0__[\"google\"].auth.OAuth2 {\n  constructor(clientSecretStrategy, servises = ['calendar']) {\n    super('dummy', 'dummy', 'dummy');\n    let client_id;\n    let client_secret;\n    let redirect_uris;\n    clientSecretStrategy.getStrategy((err, clientSecret) => {\n      client_id = clientSecret.installed.client_id;\n      client_secret = clientSecret.installed.client_secret;\n      redirect_uris = clientSecret.installed.redirect_uris;\n\n      // HACK: super の属性を直接代入\n      this._clientId = client_id;\n      this._clientSecret = client_secret;\n      this.redirectUri = redirect_uris[0];\n      // TODO: 一括代入のやりかたを調べる\n      this.clientId = client_id;\n      this.clientSecret = client_secret;\n      this.redirectUri = redirect_uris[0];\n      const baseAccessTockenUri = 'https://www.googleapis.com/auth';\n      this.uriOptions = {\n        access_type: 'offline',\n        scope: servises.map(servise => `${baseAccessTockenUri}/${servise}`)\n      };\n    });\n  }\n\n  setAccessToken(authorizateStrategy, accessTokenStrategy) {\n    const authUrl = this.generateAuthUrl(this.uriOptions);\n    // TODO: Webサイトのリンクにリダイレクトできる Alexa card にする\n    console.log(`Authorize this app by visiting this url: ${authUrl}`);\n    authorizateStrategy.strategy(code => {\n      console.log('gefdafsad');\n      console.log(code);\n      this.getToken(code, (err, token) => {\n        if (err) {\n          return console.error('Error retrieving access token', err);\n        }\n        this.setCredentials(token);\n        accessTokenStrategy.setStrategy(token);\n        return token;\n      });\n    });\n  }\n}\n\n\n//# sourceURL=webpack:///./src/js/atoms/components/oauth/GoogleOAuth2.js?");
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony import */ var fs__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! fs */ \"fs\");\n/* harmony import */ var fs__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(fs__WEBPACK_IMPORTED_MODULE_0__);\n/* harmony import */ var _list_events__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./list_events */ \"./src/js/atoms/components/googlecalendar/list_events.js\");\n/* harmony import */ var _authorize__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./authorize */ \"./src/js/atoms/components/googlecalendar/authorize.js\");\n\n\n\n\nconst CLIENT_SECRET_PATH = 'client_secret.json';\n\nconst oauth_authorize = () => {\n  // Load client secrets from a local file.\n  fs__WEBPACK_IMPORTED_MODULE_0___default.a.readFile(CLIENT_SECRET_PATH, (err, content) => {\n    if (err) return console.log('Error loading client secret file:', err);\n    // Authorize a client with credentials, then call the Google Calendar API.\n    Object(_authorize__WEBPACK_IMPORTED_MODULE_2__[\"default\"])(JSON.parse(content).installed, _list_events__WEBPACK_IMPORTED_MODULE_1__[\"default\"]);\n  });\n};\n\n/* harmony default export */ __webpack_exports__[\"default\"] = (oauth_authorize);\n\n\n//# sourceURL=webpack:///./src/js/atoms/components/googlecalendar/oauth_client.js?");
 
 /***/ }),
 
-/***/ "./src/js/atoms/components/oauth/GoogleOAuth2AbstractOAuth2Adapter.js":
-/*!****************************************************************************!*\
-  !*** ./src/js/atoms/components/oauth/GoogleOAuth2AbstractOAuth2Adapter.js ***!
-  \****************************************************************************/
-/*! exports provided: default */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"default\", function() { return GoogleOAuth2AbstractOAuth2Adapter; });\n/* harmony import */ var _GoogleOAuth2__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./GoogleOAuth2 */ \"./src/js/atoms/components/oauth/GoogleOAuth2.js\");\n\n\n// implements AbstractOAuth2\nclass GoogleOAuth2AbstractOAuth2Adapter {\n  constructor(\n    clientSecretStrategy,\n    authorizateStrategy,\n    accessTokenStrategy,\n    servises = ['calendar']\n  ) {\n    this.adaptee = new _GoogleOAuth2__WEBPACK_IMPORTED_MODULE_0__[\"default\"](clientSecretStrategy, servises);\n    this.authorizateStrategy = authorizateStrategy;\n    this.accessTokenStrategy = accessTokenStrategy;\n  }\n\n  // NOTE: OAuth2 は，認可に基づく認証を行うため\n  authorize(callback) {\n    // TODO: Promise 化する\n    console.log('werty');\n    this.accessTokenStrategy.getStrategy((err, token) => {\n      console.log('rew  qrwqe');\n      console.log(token);\n      if (err) {\n        console.log('afeafd');\n        return this.adaptee.setAccessToken(\n          this.authorizateStrategy,\n          this.accessTokenStrategy\n        );\n        // TODO: refresh token に対応する\n        // oauth2client.on('tokens', (tokens) => {\n        //   if (tokens.refresh_token) {\n        //     // store the refresh_token in my database!\n        //     console.log(tokens.refresh_token);\n        //   }\n        //   console.log(tokens.access_token);\n        // });\n      }\n      this.adaptee.setCredentials(token);\n      return callback(this.adaptee);\n    });\n  }\n}\n\n\n//# sourceURL=webpack:///./src/js/atoms/components/oauth/GoogleOAuth2AbstractOAuth2Adapter.js?");
-
-/***/ }),
-
-/***/ "./src/js/atoms/components/strategy/JSONFileStrategy.js":
-/*!**************************************************************!*\
-  !*** ./src/js/atoms/components/strategy/JSONFileStrategy.js ***!
-  \**************************************************************/
-/*! exports provided: default */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"default\", function() { return JSONFileStrategy; });\n/* harmony import */ var fs__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! fs */ \"fs\");\n/* harmony import */ var fs__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(fs__WEBPACK_IMPORTED_MODULE_0__);\n\n\nclass JSONFileStrategy {\n  constructor(jsonFilePath) {\n    this.filePath = jsonFilePath;\n  }\n\n  // getStrategySync() {\n  // return await new Promise((resolve, reject) => {\n  //   fs.readFile(this.filePath, (err, content) => {\n  //     if (err) {\n  //       reject(`Error: can not loading ${this.filePath} json file, ${err}`);\n  //     }\n  //     resolve(JSON.parse(content));\n  //   });\n  // });\n\n  // return JSON.parse(fs.readFileSync(this.filePath));\n  // }\n\n  getStrategy(callback) {\n    fs__WEBPACK_IMPORTED_MODULE_0___default.a.readFile(this.filePath, (err, content) => {\n      if (err) {\n        console.error(\n          `Error: can not loading ${this.filePath} json file, ${err}`\n        );\n        callback(err, null);\n      }\n      try {\n        const json = JSON.parse(content);\n        callback(null, json);\n      } catch (e) {\n        console.log('catch syntax err');\n        callback(e, null);\n      }\n    });\n  }\n\n  setStrategy(obj) {\n    fs__WEBPACK_IMPORTED_MODULE_0___default.a.writeFile(this.filePath, JSON.stringify(obj), err => {\n      if (err) {\n        console.error(err);\n      }\n    });\n  }\n}\n\n\n//# sourceURL=webpack:///./src/js/atoms/components/strategy/JSONFileStrategy.js?");
-
-/***/ }),
-
-/***/ "./src/js/atoms/components/strategy/ReadlineStrategy.js":
-/*!**************************************************************!*\
-  !*** ./src/js/atoms/components/strategy/ReadlineStrategy.js ***!
-  \**************************************************************/
-/*! exports provided: default */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"default\", function() { return ReadlineStrategy; });\n/* harmony import */ var readline__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! readline */ \"readline\");\n/* harmony import */ var readline__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(readline__WEBPACK_IMPORTED_MODULE_0__);\n\n\nclass ReadlineStrategy {\n  constructor(inputStrategy, outputStrategy) {\n    this.rl = readline__WEBPACK_IMPORTED_MODULE_0___default.a.createInterface({\n      input: inputStrategy.strategy(),\n      output: outputStrategy.strategy()\n    });\n  }\n\n  strategy(callback) {\n    // TODO: 一般化\n    this.rl.question('Enter the code from that page here: ', code => {\n      console.log('qqqqqq');\n      console.log(code);\n      this.rl.close();\n      callback(code);\n    });\n  }\n}\n\n\n//# sourceURL=webpack:///./src/js/atoms/components/strategy/ReadlineStrategy.js?");
-
-/***/ }),
-
-/***/ "./src/js/atoms/components/strategy/StdinStrategy.js":
-/*!***********************************************************!*\
-  !*** ./src/js/atoms/components/strategy/StdinStrategy.js ***!
-  \***********************************************************/
-/*! exports provided: default */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"default\", function() { return StdinStrategy; });\nclass StdinStrategy {\n  strategy() {\n    return process.stdin;\n  }\n}\n\n\n//# sourceURL=webpack:///./src/js/atoms/components/strategy/StdinStrategy.js?");
-
-/***/ }),
-
-/***/ "./src/js/atoms/components/strategy/StdoutStrategy.js":
-/*!************************************************************!*\
-  !*** ./src/js/atoms/components/strategy/StdoutStrategy.js ***!
-  \************************************************************/
-/*! exports provided: default */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"default\", function() { return StdoutStrategy; });\nclass StdoutStrategy {\n  strategy() {\n    return process.stdout;\n  }\n}\n\n\n//# sourceURL=webpack:///./src/js/atoms/components/strategy/StdoutStrategy.js?");
-
-/***/ }),
-
-/***/ "./src/js/index.js":
-/*!*************************!*\
-  !*** ./src/js/index.js ***!
-  \*************************/
+/***/ "./src/js/sandbox.js":
+/*!***************************!*\
+  !*** ./src/js/sandbox.js ***!
+  \***************************/
 /*! no exports provided */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony import */ var _babel_polyfill__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @babel/polyfill */ \"./node_modules/@babel/polyfill/lib/index.js\");\n/* harmony import */ var _babel_polyfill__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_babel_polyfill__WEBPACK_IMPORTED_MODULE_0__);\n/* harmony import */ var _atoms_components_googlecalendar_fetch_events__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./atoms/components/googlecalendar/fetch_events */ \"./src/js/atoms/components/googlecalendar/fetch_events.js\");\n\n\n// import oauth_authorize from './atoms/components/googlecalendar/oauth_client';\n\n// import authorize, {\n//   listEvents\n// } from './atoms/components/googlecalendar/googlecalendar';\n\n// oauth_authorize();\n\n\n\nObject(_atoms_components_googlecalendar_fetch_events__WEBPACK_IMPORTED_MODULE_1__[\"default\"])();\n\n\n//# sourceURL=webpack:///./src/js/index.js?");
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony import */ var _babel_polyfill__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @babel/polyfill */ \"./node_modules/@babel/polyfill/lib/index.js\");\n/* harmony import */ var _babel_polyfill__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_babel_polyfill__WEBPACK_IMPORTED_MODULE_0__);\n/* harmony import */ var _atoms_components_googlecalendar_oauth_client__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./atoms/components/googlecalendar/oauth_client */ \"./src/js/atoms/components/googlecalendar/oauth_client.js\");\n/* harmony import */ var _atoms_components_googlecalendar_googlecalendar__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./atoms/components/googlecalendar/googlecalendar */ \"./src/js/atoms/components/googlecalendar/googlecalendar.js\");\n\n// import JSONFileStrategy from './atoms/components/strategy/JSONFileStrategy';\n\n// (async () => {\n//   let json = await new JSONFileStrategy('client_secret.json').getStrategy();\n//   console.log('test');\n//   console.log(json);\n// })();\n\n// class B {\n//   constructor(b) {\n//     this.b = b;\n//   }\n// }\n\n// function sample() {\n//   console.log('ssss');\n//   return 'ssss';\n// }\n// class C extends B {\n//   constructor(b, c) {\n//     const s = sample();\n//     super(b);\n//     this.c = c;\n//     console.log('C');\n//     console.log(this.c);\n//     console.log(this.b);\n//   }\n// }\n\n// const c = new C('b', 'c');\n\n// console.log(c.b);\n\n\n\n\n\nObject(_atoms_components_googlecalendar_oauth_client__WEBPACK_IMPORTED_MODULE_1__[\"default\"])();\n\n\n//# sourceURL=webpack:///./src/js/sandbox.js?");
 
 /***/ }),
 
